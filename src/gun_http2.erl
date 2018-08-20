@@ -128,8 +128,6 @@ parse(Data0, State0=#http2_state{buffer=Buffer}) ->
 	end.
 
 %% DATA frame.
-frame({headers,StreamID,IsFin,head_fin,_,_,_,HeaderBlock}, State)->
-	frame({headers, StreamID, IsFin, head_fin, HeaderBlock}, State);
 frame({data, StreamID, IsFin, Data}, State0=#http2_state{remote_window=ConnWindow}) ->
 	case get_stream_by_id(StreamID, State0) of
 		Stream0 = #stream{remote=nofin, remote_window=StreamWindow, handler_state=Handlers0} ->
@@ -145,6 +143,8 @@ frame({data, StreamID, IsFin, Data}, State0=#http2_state{remote_window=ConnWindo
 				'DATA frame received for a closed or non-existent stream. (RFC7540 6.1)'})
 	end;
 %% Single HEADERS frame headers block.
+frame({headers,StreamID,IsFin,head_fin,_,_,_,HeaderBlock}, State)->
+	frame({headers, StreamID, IsFin, head_fin, HeaderBlock}, State);
 frame({headers, StreamID, IsFin, head_fin, HeaderBlock},
 		State=#http2_state{decode_state=DecodeState0, content_handlers=Handlers0}) ->
 	case get_stream_by_id(StreamID, State) of
